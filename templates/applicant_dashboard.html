@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Applicant Dashboard - TalentMatch{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4">
+                    <h4 class="text-success">
+                        <i class="bi bi-person-badge me-2"></i>Applicant
+                    </h4>
+                    <span class="badge bg-info">{{ user.role|title }}</span>
+                </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showDashboard()">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showAvailableJobs()">
+                            <i class="bi bi-search me-2"></i>Available Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showMyApplications()">
+                            <i class="bi bi-file-earmark-text me-2"></i>My Applications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showProfile()">
+                            <i class="bi bi-person me-2"></i>Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showAnalytics()">
+                            <i class="bi bi-graph-up me-2"></i>Analytics
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr>
+                
+                <div class="mt-auto">
+                    <button class="btn btn-outline-danger btn-sm w-100" onclick="logout()">
+                        <i class="bi bi-box-arrow-right me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div id="content">
+                <!-- Dashboard Content -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Applicant Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-success" onclick="showAvailableJobs()">
+                            <i class="bi bi-search me-1"></i>Find Jobs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Applications
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalApplications">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-file-earmark-text fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<!-- Application Details Modal -->
+<div class="modal fade" id="appApplicationDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="appApplicationDetailsBody">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Shortlisted
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="shortlistedApplications">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-check-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Avg Match Score
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgMatchScore">0%</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-graph-up fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Available Jobs
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="availableJobsCount">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-briefcase fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Applications & Available Jobs -->
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Applications</h6>
+                            </div>
+                            <div class="card-body" id="recentApplications">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-success">Recommended Jobs</h6>
+                            </div>
+                            <div class="card-body" id="recommendedJobs">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Job Application Modal -->
+<div class="modal fade" id="applyJobModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply for Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="applyJobForm">
+                    <div class="mb-3">
+                        <label class="form-label">Job Title</label>
+                        <input type="text" class="form-control" id="jobTitle" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="resumeFile" class="form-label">Upload Resume *</label>
+                        <input type="file" class="form-control" id="resumeFile" accept=".pdf,.doc,.docx" required>
+                        <div class="form-text">Supported formats: PDF, DOC, DOCX</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success" form="applyJobForm">Submit Application</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="editUsername" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="editUsername" placeholder="Enter new username">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitProfileUpdate()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+ </div>
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="currentPassword" class="form-label">Current Password</label>
+                    <input type="password" class="form-control" id="currentPassword">
+                </div>
+                <div class="mb-3">
+                    <label for="newPassword" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newPassword">
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitChangePassword()">Change Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/applicant_dashboard.js' %}?v=5"></script>
+{% endblock %}

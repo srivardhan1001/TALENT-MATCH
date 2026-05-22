@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recruiter Dashboard - TalentMatch{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4">
+                    <h4 class="text-primary">
+                        <i class="bi bi-briefcase-fill me-2"></i>Recruiter
+                    </h4>
+                    <span class="badge bg-success">{{ user.role|title }}</span>
+                </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showDashboard()">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showJobs()">
+                            <i class="bi bi-briefcase me-2"></i>My Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showApplications()">
+                            <i class="bi bi-file-earmark-text me-2"></i>Applications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showAnalytics()">
+                            <i class="bi bi-graph-up me-2"></i>Analytics
+                        </a>
+                    </li>
+                </ul>
+                
+                <hr>
+                
+                <div class="mt-auto">
+                    <button class="btn btn-outline-danger btn-sm w-100" onclick="logout()">
+                        <i class="bi bi-box-arrow-right me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div id="content">
+                <!-- Dashboard Content -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Recruiter Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="showCreateJobForm()">
+                            <i class="bi bi-plus-circle me-1"></i>Create Job
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Jobs
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalJobs">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-briefcase fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Total Applications
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalApplications">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-file-earmark-text fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Shortlisted
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="shortlistedCount">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-check-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Active Jobs
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="activeJobs">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-lightning fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Applications -->
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Recent Applications</h6>
+                            </div>
+                            <div class="card-body" id="recentApplications">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-success">Top Candidates</h6>
+                            </div>
+                            <div class="card-body" id="topCandidates">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Job Creation Modal -->
+<div class="modal fade" id="createJobModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createJobForm">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="jobTitle" class="form-label">Job Title *</label>
+                            <input type="text" class="form-control" id="jobTitle" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="jobExperience" class="form-label">Minimum Experience (years) *</label>
+                            <input type="number" class="form-control" id="jobExperience" min="0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="jobEducation" class="form-label">Education Level</label>
+                            <select class="form-select" id="jobEducation">
+                                <option value="">Not specified</option>
+                                <option value="High School">High School</option>
+                                <option value="Diploma">Diploma</option>
+                                <option value="Bachelors">Bachelors</option>
+                                <option value="Masters">Masters</option>
+                                <option value="PhD">PhD</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="jobDeadline" class="form-label">Application Deadline</label>
+                            <input type="datetime-local" class="form-control" id="jobDeadline">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="jobType" class="form-label">Job Type</label>
+                            <select class="form-select" id="jobType">
+                                <option value="full-time">Full Time</option>
+                                <option value="part-time">Part Time</option>
+                                <option value="contract">Contract</option>
+                                <option value="internship">Internship</option>
+                                <option value="remote">Remote</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="jobSkills" class="form-label">Required Skills *</label>
+                            <textarea class="form-control" id="jobSkills" rows="3" placeholder="Enter skills separated by commas" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="jobDescription" class="form-label">Job Description</label>
+                            <textarea class="form-control" id="jobDescription" rows="4"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="createJobForm">Create Job</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Application Details Modal -->
+<div class="modal fade" id="applicationDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="applicationDetailsBody">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/recruiter_dashboard.js' %}?v=4"></script>
+{% endblock %}
