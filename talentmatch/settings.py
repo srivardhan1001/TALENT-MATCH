@@ -65,17 +65,27 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'talentmatch.wsgi.application'
+DATABASE_URL = config('DATABASE_URL', default=None)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB', default='talentmatch_db'),
-        'USER': config('POSTGRES_USER', default='talentmatch_user'),
-        'PASSWORD': config('POSTGRES_PASSWORD', default='password'),
-        'HOST': config('POSTGRES_HOST', default='localhost'),
-        'PORT': config('POSTGRES_PORT', default='5432'),
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('POSTGRES_DB', default='talentmatch_db'),
+            'USER': config('POSTGRES_USER', default='talentmatch_user'),
+            'PASSWORD': config('POSTGRES_PASSWORD', default='password'),
+            'HOST': config('POSTGRES_HOST', default='localhost'),
+            'PORT': config('POSTGRES_PORT', default='5432'),
+        }
+    }
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
